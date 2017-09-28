@@ -10,7 +10,7 @@
         <task:scheduled ref="timedTask" method="Task5s" cron="*/5 * * * * ?" />
     </task:scheduled-tasks>
 
-    <!--5秒钟-->
+    <!--5分钟-->
     <task:scheduled-tasks>
         <task:scheduled ref="timedTask" method="Task5m" cron="0 0/5 * * * ?" />
     </task:scheduled-tasks>
