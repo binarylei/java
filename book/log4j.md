@@ -3,7 +3,7 @@
 > log4j 配置文件有三个主要的组件：Logger，Appender和Layout，分别为日志类型，日志输出目的地，日志输出格式。
 
 
-### 常见log4j配置
+### log4j.properties
 
 ```properties
 # Root logger option
@@ -25,7 +25,7 @@ log4j.appender.file.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:
 
 log4j.logger.org.springframework=info
 log4j.logger.org.springframework.web=debug
-log4j.logger.com.greenet=debug
+log4j.logger.com.binarylei=debug
 ```
  
 1. 配置根Logger，其语法为： `log4j.rootLogger = [ level ] , appenderName1, appenderName2, …  `
