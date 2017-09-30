@@ -93,7 +93,7 @@ spring为我们提供了实现ServletContextListener接口的上下文初始化�
 
 4. 此后的所有servlet的初始化都按照3步中方式创建，初始化自己的上下文环境，将WebApplicationContext设置为自己的父上下文环境。
 
-[ServletContext容器](http://images.cnitblog.com/blog/698747/201502/011528042224276.png)
+![ServletContext容器](http://images.cnitblog.com/blog/698747/201502/011528042224276.png)
 
 对于作用范围而言，在DispatcherServlet中可以引用由ContextLoaderListener所创建的ApplicationContext中的内容，而反过来不行。
 
