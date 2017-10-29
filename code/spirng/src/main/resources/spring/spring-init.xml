@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
-
-    <!--tomcat启动调用的方法-->
-    <bean class="com.herolei.task.InitParams" init-method="init"></bean>
-    <bean class="com.herolei.task.InitParams" init-method="init2"></bean>
-</beans>
