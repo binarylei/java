@@ -120,48 +120,41 @@ public class LongEventProducerWithTranslator {
 
 ```java
 public class LongEventMain {
-
 	public static void main(String[] args) throws Exception {
-		//1. 创建缓冲池
-		ExecutorService  executor = Executors.newCachedThreadPool();
-		//2. 创建工厂
-		LongEventFactory factory = new LongEventFactory();
-		//3. 创建bufferSize ,也就是RingBuffer大小，必须是2的N次方
-		int ringBufferSize = 1024 * 1024; // 
+		//1. 创建disruptor
+        Disruptor<LongEvent> disruptor = new Disruptor<LongEvent>(
+                new LongEventFactory(),     // 创建工厂
+                1024 * 1024,   // RingBuffer大小，必须是2的N次方
+                Executors.defaultThreadFactory() // 创建ThreadFactory
+        );
 
-		//4. 创建disruptor
-		Disruptor<LongEvent> disruptor = new Disruptor<LongEvent>(factory, ringBufferSize, executor);
+        //2. 连接消费事件方法
+        disruptor.handleEventsWith(new LongEventHandler());
+        //3. 启动
+        disruptor.start();
 
-		//5. 连接消费事件方法
-		disruptor.handleEventsWith(new LongEventHandler());
-		
-		//6. 启动
-		disruptor.start();
-		
-		//7. 发布事件
-		RingBuffer<LongEvent> ringBuffer = disruptor.getRingBuffer();
-		
-		LongEventProducer producer = new LongEventProducer(ringBuffer); 
-		//LongEventProducerWithTranslator producer = new LongEventProducerWithTranslator(ringBuffer);
+        //4. 发布事件
+        RingBuffer<LongEvent> ringBuffer = disruptor.getRingBuffer();
 
-		ByteBuffer byteBuffer = ByteBuffer.allocate(8);
-		for(long l = 0; l<100; l++){
-			byteBuffer.putLong(0, l);
-			producer.onData(byteBuffer);
-			//Thread.sleep(1000);
-		}
+        //LongEventProducer producer = new LongEventProducer(ringBuffer);
+        LongEventProducerWithTranslator producer = new LongEventProducerWithTranslator(ringBuffer);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(8);
+        for(long l = 0; l<100; l++){
+            byteBuffer.putLong(0, l);
+            producer.onData(byteBuffer);
+            //Thread.sleep(1000);
+        }
 
-		//关闭 disruptor，方法会堵塞，直至所有的事件都得到处理；
-		disruptor.shutdown();
-		//关闭 disruptor 使用的线程池；必须手动关闭，disruptor.shutdown() 时不会自动关闭；
-		executor.shutdown();
+        disruptor.shutdown();//关闭 disruptor，方法会堵塞，直至所有的事件都得到处理；
 	}
 }
 ```
 
 ## Disruptor术语说明
 
-* `RingBuffer`: 被看作Disruptor最主要的组件，然而从3.0开始RingBuffer仅仅负责存储和更新在Disruptor中流通的数据。对一些特殊的使用场景能够被用户(使用其他数据结构)完全替代。
+* `RingBuffer`: 被看作Disruptor最主要的组件，然而从3.0开始RingBuffer仅仅负责存储和更新在Disruptor中流通的数据。对一些特殊的使用场景能够被用户(使用其他数据结构)完全替代。[更多Ringbuffer](http://ifeve.com/dissecting-disruptor-whats-so-special/)
+
+	![RingBuffer](./img/4.1.jpg)
 
 * `Sequence`: Disruptor使用Sequence来表示一个特殊组件处理的序号。和Disruptor一样，每个消费者(EventProcessor)都维持着一个Sequence。大部分的并发代码依赖这些Sequence值的运转，因此Sequence支持多种当前为AtomicLong类的特性。
 
@@ -181,8 +174,221 @@ public class LongEventMain {
 
 * `WorkProcessor`：确保每个sequence只被一个processor消费，在同一个WorkPool中的处理多个WorkProcessor不会消费同样的sequence。
 
-* `WorkerPool`：一个WorkProcessor池，其中WorkProcessor将消费Sequence，所以任务可以在实现WorkHandler接口的worker吃间移交
+* `WorkerPool`：一个WorkProcessor池，其中WorkProcessor将消费Sequence，所以任务可以在实现WorkHandler接口的worker直接移交。
 
 * `LifecycleAware`：当BatchEventProcessor启动和停止时，于实现这个接口用于接收通知。
 
+## RingBuffer使用
 
+在helloWorld的实例中，我们创建Disruptor实例，然后调用getRingBuffer方法去获取RingBuffer，其实在很多时候，我们可以直接使用RingBuffer，以及其他的API操作。我们一起熟悉下示例：
+
+第一步：创建要生产的数据
+
+```java
+public class Trade {
+	private String id;//ID
+	private double price;//金额
+	
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public void setPrice(double price) {
+		this.price = price;
+	}
+}
+```
+
+第二步：创建消息处理器，消费者
+
+```java
+public class TradeHandler implements EventHandler<Trade>, WorkHandler<Trade> {  
+    @Override  
+    public void onEvent(Trade event, long sequence, boolean endOfBatch) throws Exception {  
+        this.onEvent(event);  
+    }  
+    @Override  
+    public void onEvent(Trade event) throws Exception {  
+        //这里做具体的消费逻辑  
+        event.setId(UUID.randomUUID().toString());//简单生成下ID  
+        System.out.println(event.getId());  
+    }  
+}  
+```
+
+第三步：测试
+
+```java
+public class RingBufferTest {  
+	public static void main(String[] args) throws Exception {  
+        //1. 创建RingBuffer
+        final RingBuffer<Trade> ringBuffer = RingBuffer.createSingleProducer(
+                new EventFactory<Trade>() {  // EventFactory 负责生产 Trade 数据填充RingBuffer的区块
+                    @Override
+                    public Trade newInstance() {
+                        return new Trade();
+                    }
+                },
+                1024,             // RingBuffer的大小，2的N次方，提高求模运算效率
+                new YieldingWaitStrategy());// 等待策略
+        
+        //2. 创建线程池
+        ExecutorService executors = Executors.newFixedThreadPool(4);
+        
+        //3. 创建SequenceBarrier
+        SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
+
+
+        //4. 消息处理，如果存在多个消费者，那就重复执行下面3行代码，把TradeHandler换成其它消费者类
+        //4.1. 创建消息处理器
+        BatchEventProcessor<Trade> transProcessor = new BatchEventProcessor<Trade>(  // (1)
+                ringBuffer, sequenceBarrier, new TradeHandler());
+        //4.2. 这一步的目的就是把消费者的位置信息引用注入到生产者    如果只有一个消费者的情况可以省
+        ringBuffer.addGatingSequences(transProcessor.getSequence());
+        //4.3. 把消息处理器提交到线程池
+        executors.submit(transProcessor);
+
+        //5. 生产数据
+        for(int i=0;i<8;i++){
+            long seq=ringBuffer.next();
+            ringBuffer.get(seq).setPrice(Math.random()*9999);
+            ringBuffer.publish(seq);
+        }
+
+        Thread.sleep(1000);//等上1秒，等消费都处理完成
+        transProcessor.halt();//通知事件(或者说消息)处理器 可以结束了（并不是马上结束!!!）  
+        executors.shutdown();//终止线程  
+    }  
+}  
+```
+
+1. 消息处理可以使用 WorkHandler/WorkerPool 替代，IgnoreExceptionHandler 为异常处理机制，可以继承该类后重写其业务逻辑
+
+	```java
+	WorkHandler<Trade> handler = new TradeHandler();
+	WorkerPool<Trade> workerPool = new WorkerPool<Trade>(
+		ringBuffer, 
+		sequenceBarrier, 
+		new IgnoreExceptionHandler(),  
+		handler);
+	workerPool.start(executor);
+	```
+## Disruptor场景使用
+
+虽然disruptor模式使用起来很简单，但是建立多个消费者以及它们之间的依赖关系需要的样板代码太多了。为了能快速又简单适用于99%的场景，我为Disruptor模式准备了一个简单的领域特定语言。[更多Disruptor场景使用](http://ifeve.com/disruptor-dsl/)
+
+### 消费者的“四边形模式”
+
+![四边形模式](http://ifeve.com/wp-content/uploads/2013/02/1P3C-Diamond-300x198.png)
+
+在这种情况下，只要生产者（P1）将元素放到ring buffer上，消费者C1和C2就可以并行处理这些元素。但是消费者C3必须一直等到C1和C2处理完之后，才可以处理。在现实世界中的对应的案例就像：在处理实际的业务逻辑（C3）之前，需要校验数据（C1），以及将数据写入磁盘（C2）。
+
+```java
+//1. 使用disruptor创建消费者组C1,C2  
+EventHandlerGroup<Trade> handlerGroup = 
+		disruptor.handleEventsWith(new Handler1(), new Handler2());
+//2. 声明在C1,C2完事之后执行JMS消息发送操作 也就是流程走到C3 
+handlerGroup.then(new Handler3());
+```
+
+### 消费者的“顺序执行模式”
+
+```java
+disruptor.handleEventsWith(new Handler1())
+	.handleEventsWith(new Handler2())
+	.handleEventsWith(new Handler3());
+```
+
+### 消费者的“六边形模式”
+
+我们甚至可以在一个更复杂的六边形模式中构建一个并行消费者链：
+
+![六边形模式](http://ifeve.com/wp-content/uploads/2013/02/disruptorChains-300x225-300x148.png)
+
+```java
+disruptor.handleEventsWith(new Handler1(), new Handler2());
+disruptor.after(new Handler1()).handleEventsWith(new Handler4());
+disruptor.after(new Handler2()).handleEventsWith(new Handler5());
+disruptor.after(new Handler4(), new Handler5()).handleEventsWith(new Handler3());
+```
+
+Disruptor四边形模式实现案例：
+
+```java
+public class Main {  
+    public static void main(String[] args) throws InterruptedException {  
+        long beginTime=System.currentTimeMillis();
+
+        //1. 创建disruptor
+        Disruptor<Trade> disruptor = new Disruptor<Trade>(
+                new EventFactory<Trade>() { // 创建工厂
+                    @Override
+                    public Trade newInstance() {
+                        return new Trade();
+                    }
+                },
+                1024 * 1024,         // RingBuffer大小，必须是2的N次方
+                Executors.defaultThreadFactory(), // 创建ThreadFactory
+                ProducerType.SINGLE,
+                new BusySpinWaitStrategy()
+        );
+
+        //2. 绑定事件消费
+        //2.1 使用disruptor创建消费者组C1,C2
+        EventHandlerGroup<Trade> handlerGroup = 
+        		disruptor.handleEventsWith(new Handler1(), new Handler2());
+        //2.2 声明在C1,C2完事之后执行JMS消息发送操作 也就是流程走到C3
+        handlerGroup.then(new Handler3());
+
+        //3. 启动disruptor
+        disruptor.start();//启动  
+        CountDownLatch latch=new CountDownLatch(1);
+
+        //4. 生产者准备
+        ExecutorService executor = Executors.newCachedThreadPool();
+        executor.submit(new TradePublisher(latch, disruptor));
+        
+        latch.await();//等待生产者完事. 
+        disruptor.shutdown();
+        System.out.println("总耗时:"+(System.currentTimeMillis()-beginTime));
+    }
+}
+```
+
+具体的事件生产方法 TradePublisher
+
+```java
+public class TradePublisher implements Runnable {  
+    Disruptor<Trade> disruptor;
+    private CountDownLatch latch;
+    private static int LOOP=10;//模拟百万次交易的发生
+  
+    public TradePublisher(CountDownLatch latch, Disruptor<Trade> disruptor) {  
+        this.disruptor=disruptor;
+        this.latch=latch;
+    }
+    @Override  
+    public void run() {  
+    	TradeEventTranslator tradeTransloator = new TradeEventTranslator();  
+        for(int i=0;i<LOOP;i++){  
+            disruptor.publishEvent(tradeTransloator);  
+        }  
+        latch.countDown();  
+    }  
+}  
+  
+class TradeEventTranslator implements EventTranslator<Trade>{  
+	private Random random=new Random();  
+    
+	@Override  
+    public void translateTo(Trade event, long sequence) {  
+        this.generateTrade(event);  
+    }  
+	private Trade generateTrade(Trade trade){  
+        trade.setPrice(random.nextDouble()*9999);  
+        return trade;  
+    }  
+}  
+```
