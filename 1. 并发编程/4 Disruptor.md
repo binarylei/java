@@ -84,7 +84,8 @@ public class LongEventProducer {
 			event.setValue(bb.getLong(0));
 		} finally {
 			//4.发布事件
-			//注意，最后的 ringBuffer.publish 方法必须包含在 finally 中以确保必须得到调用；如果某个请求的 sequence 未被提交，将会堵塞后续的发布操作或者其它的 producer。
+			//注意，最后的 ringBuffer.publish 方法必须包含在 finally 中以确保必须得到调用；
+			//      如果某个请求的 sequence 未被提交，将会堵塞后续的发布操作或者其它的 producer。
 			ringBuffer.publish(sequence);
 		}
 	}	
@@ -92,6 +93,28 @@ public class LongEventProducer {
 ```
 
 很明显的是：当用一个简单队列来发布事件的时候会牵涉更多的细节，这是因为事件对象还需要预先创建。发布事件最少需要两步：获取下一个事件槽并发布事件（发布事件的时候要使用try/finnally保证事件一定会被发布）。如果我们使用RingBuffer.next()获取一个事件槽，那么一定要发布对应的事件。如果不能发布事件，那么就会引起Disruptor状态的混乱。尤其是在多个事件生产者的情况下会导致事件消费者失速，从而不得不重启应用才能会恢复。
+
+Disruptor 3.0提供了lambda式的API。这样可以把一些复杂的操作放在Ring Buffer，所以在Disruptor3.0以后的版本最好使用Event Publisher或者Event Translator来发布事件。
+
+```java
+public class LongEventProducerWithTranslator {
+    //一个translator可以看做一个事件初始化器，publicEvent方法会调用它
+    private static final EventTranslatorOneArg<LongEvent, ByteBuffer> TRANSLATOR =
+            new EventTranslatorOneArg<LongEvent, ByteBuffer>() {
+                public void translateTo(LongEvent event, long sequence, ByteBuffer buffer) {
+                    event.setValue(buffer.getLong(0));
+                }
+            };
+
+    private final RingBuffer<LongEvent> ringBuffer;
+    public LongEventProducerWithTranslator(RingBuffer<LongEvent> ringBuffer) {
+        this.ringBuffer = ringBuffer;
+    }
+    public void onData(ByteBuffer buffer) {
+        ringBuffer.publishEvent(TRANSLATOR, buffer);
+    }
+}
+```
 
 最后一步就是把所有的代码组合起来完成一个完整的事件处理系统。
 
@@ -115,12 +138,12 @@ public class LongEventMain {
 		//6. 启动
 		disruptor.start();
 		
-		//Disruptor 的事件发布过程是一个两阶段提交的过程：
 		//7. 发布事件
 		RingBuffer<LongEvent> ringBuffer = disruptor.getRingBuffer();
 		
 		LongEventProducer producer = new LongEventProducer(ringBuffer); 
 		//LongEventProducerWithTranslator producer = new LongEventProducerWithTranslator(ringBuffer);
+
 		ByteBuffer byteBuffer = ByteBuffer.allocate(8);
 		for(long l = 0; l<100; l++){
 			byteBuffer.putLong(0, l);
@@ -128,8 +151,10 @@ public class LongEventMain {
 			//Thread.sleep(1000);
 		}
 
-		disruptor.shutdown();//关闭 disruptor，方法会堵塞，直至所有的事件都得到处理；
-		executor.shutdown();//关闭 disruptor 使用的线程池；如果需要的话，必须手动关闭，disruptor 在 shutdown 时不会自动关闭；		
+		//关闭 disruptor，方法会堵塞，直至所有的事件都得到处理；
+		disruptor.shutdown();
+		//关闭 disruptor 使用的线程池；必须手动关闭，disruptor.shutdown() 时不会自动关闭；
+		executor.shutdown();
 	}
 }
 ```
