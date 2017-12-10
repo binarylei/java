@@ -122,30 +122,30 @@ public class LongEventProducerWithTranslator {
 public class LongEventMain {
 	public static void main(String[] args) throws Exception {
 		//1. 创建disruptor
-        Disruptor<LongEvent> disruptor = new Disruptor<LongEvent>(
-                new LongEventFactory(),     // 创建工厂
-                1024 * 1024,   // RingBuffer大小，必须是2的N次方
-                Executors.defaultThreadFactory() // 创建ThreadFactory
-        );
+		Disruptor<LongEvent> disruptor = new Disruptor<LongEvent>(
+	        new LongEventFactory(),     // 创建工厂
+	        1024 * 1024,   // RingBuffer大小，必须是2的N次方
+	        Executors.defaultThreadFactory() // 创建ThreadFactory
+		);
 
-        //2. 连接消费事件方法
-        disruptor.handleEventsWith(new LongEventHandler());
-        //3. 启动
-        disruptor.start();
+		//2. 连接消费事件方法
+		disruptor.handleEventsWith(new LongEventHandler());
+		//3. 启动
+		disruptor.start();
 
-        //4. 发布事件
-        RingBuffer<LongEvent> ringBuffer = disruptor.getRingBuffer();
+		//4. 发布事件
+		RingBuffer<LongEvent> ringBuffer = disruptor.getRingBuffer();
 
-        //LongEventProducer producer = new LongEventProducer(ringBuffer);
-        LongEventProducerWithTranslator producer = new LongEventProducerWithTranslator(ringBuffer);
-        ByteBuffer byteBuffer = ByteBuffer.allocate(8);
-        for(long l = 0; l<100; l++){
-            byteBuffer.putLong(0, l);
-            producer.onData(byteBuffer);
-            //Thread.sleep(1000);
-        }
+		//LongEventProducer producer = new LongEventProducer(ringBuffer);
+		LongEventProducerWithTranslator producer = new LongEventProducerWithTranslator(ringBuffer);
+		ByteBuffer byteBuffer = ByteBuffer.allocate(8);
+		for(long l = 0; l<100; l++){
+		    byteBuffer.putLong(0, l);
+		    producer.onData(byteBuffer);
+		    //Thread.sleep(1000);
+		}
 
-        disruptor.shutdown();//关闭 disruptor，方法会堵塞，直至所有的事件都得到处理；
+		disruptor.shutdown();//关闭 disruptor，方法会堵塞，直至所有的事件都得到处理；
 	}
 }
 ```
