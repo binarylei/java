@@ -225,14 +225,14 @@ public class RingBufferTest {
     public static void main(String[] args) throws Exception {  
         //1. 创建RingBuffer
         final RingBuffer<Trade> ringBuffer = RingBuffer.createSingleProducer(
-                new EventFactory<Trade>() {  // EventFactory 负责生产 Trade 数据填充RingBuffer的区块
-                    @Override
-                    public Trade newInstance() {
-                        return new Trade();
-                    }
-                },
-                1024,             // RingBuffer的大小，2的N次方，提高求模运算效率
-                new YieldingWaitStrategy());// 等待策略
+            new EventFactory<Trade>() {  // EventFactory 负责生产 Trade 数据填充RingBuffer的区块
+                @Override
+                public Trade newInstance() {
+                    return new Trade();
+                }
+            },
+            1024,             // RingBuffer的大小，2的N次方，提高求模运算效率
+            new YieldingWaitStrategy());// 等待策略
 
         //2. 创建线程池
         ExecutorService executors = Executors.newFixedThreadPool(4);
@@ -277,7 +277,7 @@ public class RingBufferTest {
     ```
 ## Disruptor场景使用
 
-虽然disruptor模式使用起来很简单，但是建立多个消费者以及它们之间的依赖关系需要的样板代码太多了。为了能快速又简单适用于99%的场景，我为Disruptor模式准备了一个简单的领域特定语言。[更多Disruptor场景使用](http://ifeve.com/disruptor-dsl/)
+虽然disruptor模式使用起来很简单，但是建立多个消费者以及它们之间的依赖关系需要的样板代码太多了。为了能快速又简单适用于99%的场景，我为Disruptor模式准备了一个简单的领域特定语言(DSL)，定义了消费顺序。[更多Disruptor场景使用](http://ifeve.com/disruptor-dsl/)
 
 ### 消费者的“四边形模式”
 
@@ -391,4 +391,161 @@ class TradeEventTranslator implements EventTranslator<Trade>{
         return trade;
     }
 }
+```
+
+## 多生产者多消费者
+
+```java
+public class Main {
+    public static void main(String[] args) throws Exception {
+        //1. 创建RingBuffer
+        RingBuffer<Order> ringBuffer = 
+            RingBuffer.create(ProducerType.MULTI, // (1)
+                new EventFactory<Order>() {
+                    @Override
+                    public Order newInstance() {
+                        return new Order();
+                    }
+                },
+                1024 * 1024,
+                new YieldingWaitStrategy());
+
+        //2. 绑定消息处理事件
+        Consumer[] consumers = new Consumer[3];
+        for(int i = 0; i < consumers.length; i++){
+            consumers[i] = new Consumer("c" + i);
+        }
+        
+        WorkerPool<Order> workerPool = new WorkerPool<Order>( // (2)
+                ringBuffer,
+                ringBuffer.newBarrier(),
+                new IntEventExceptionHandler(),
+                consumers);
+        
+        ringBuffer.addGatingSequences(workerPool.getWorkerSequences());  
+        workerPool.start(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
+
+        //3. 生产数据
+        final CountDownLatch latch = new CountDownLatch(1);
+        for (int i = 0; i < 100; i++) {  
+            final Producer p = new Producer(ringBuffer);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        latch.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    for(int j = 0; j < 100; j ++){
+                        p.onData(UUID.randomUUID().toString());
+                    }
+                }
+            }).start();
+        } 
+
+        latch.countDown();
+        Thread.sleep(5000);
+        System.out.println("消费总数:" + consumers[0].getCount() );
+    }
+    
+    static class IntEventExceptionHandler implements ExceptionHandler {  
+        public void handleEventException(Throwable ex, long sequence, Object event) {}  
+        public void handleOnStartException(Throwable ex) {}  
+        public void handleOnShutdownException(Throwable ex) {}  
+    } 
+}
+```
+
+1. `RingBuffer` 工厂方法，具体参数如下：
+
+    ```java
+    RingBuffer.create(
+        ProducerType producerType,  // 生产模式，ProducerType.SINGLE ProducerType.MULTI
+        EventFactory<E> factory,    // 数据生产的工厂
+        int bufferSize,             // RingBuffer大小
+        WaitStrategy waitStrategy); // 策略
+    ```
+
+2. `WorkerPool` 一个WorkProcessor池，其中WorkProcessor将消费Sequence
+
+    ```java
+    new WorkerPool(
+        RingBuffer<T> ringBuffer, 
+        SequenceBarrier sequenceBarrier, 
+        ExceptionHandler<? super T> exceptionHandler, 
+        WorkHandler... workHandlers);
+    ```
+
+消费者 Consumer ：
+
+```java
+public class Consumer implements WorkHandler<Order>{
+    
+    private String consumerId;
+    private static AtomicInteger count = new AtomicInteger(0);
+    public Consumer(String consumerId){
+        this.consumerId = consumerId;
+    }
+
+    @Override
+    public void onEvent(Order order) throws Exception {
+        System.out.println("当前消费者: " + this.consumerId + "，消费信息：" + order.getId());
+        count.incrementAndGet();
+    }
+    public int getCount(){
+        return count.get();
+    }
+}
+```
+
+生产者 Producer ：
+
+```java
+public class Producer {
+    private final RingBuffer<Order> ringBuffer;
+    
+    public Producer(RingBuffer<Order> ringBuffer){
+        this.ringBuffer = ringBuffer;
+    }
+    public void onData(String data){
+        long sequence = ringBuffer.next();
+        try {
+            Order order = ringBuffer.get(sequence);
+            order.setId(data);
+        } finally {
+            ringBuffer.publish(sequence);
+        }
+    }
+}
+```
+
+订单数据 Order ：
+
+```java
+public class Order {  
+    
+    private String id;//ID  
+    private String name;
+    private double price;//金额  
+    
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public double getPrice() {
+        return price;
+    }
+    public void setPrice(double price) {
+        this.price = price;
+    }
+}  
 ```
