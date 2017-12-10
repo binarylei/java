@@ -122,7 +122,7 @@ public class LongEventProducerWithTranslator {
 public class LongEventMain {
     public static void main(String[] args) throws Exception {
         //1. 创建disruptor
-        Disruptor<LongEvent> disruptor = new Disruptor<LongEvent>(
+        Disruptor<LongEvent> disruptor = new Disruptor<LongEvent>( // (1)
             new LongEventFactory(),     // 创建工厂
             1024 * 1024,   // RingBuffer大小，必须是2的N次方
             Executors.defaultThreadFactory() // 创建ThreadFactory
@@ -149,6 +149,24 @@ public class LongEventMain {
     }
 }
 ```
+
+1. Disruptor 构造方法如下：
+
+    ```java
+    new Disruptor(
+        EventFactory<T> eventFactory,   // 事件工厂类
+        int ringBufferSize,             // RingBuffer 大小
+        ThreadFactory threadFactory,    // ThreadFactory
+        ProducerType producerType,      // 生产模式，ProducerType.SINGLE ProducerType.MULTI
+        WaitStrategy waitStrategy)      // 等待策略，3种
+    ```
+2. WaitStrategy 策略类型：
+
+    * BlockingWaitStrategy 是最低效的策略，但其对CPU的消耗最小并且在各种不同部署环境中能提供更加一致的性能表现
+    
+    * SleepingWaitStrategy 的性能表现跟BlockingWaitStrategy差不多，对CPU的消耗也类似，但其对生产者线程的影响最小，适合用于异步日志类似的场景
+
+    * YieldingWaitStrategy 的性能是最好的，适合用于低延迟的系统。在要求极高性能且事件处理线数小于CPU逻辑核心数的场景中，推荐使用此策略；例如，CPU开启超线程的特性
 
 ## Disruptor术语说明
 
@@ -223,6 +241,8 @@ public class TradeHandler implements EventHandler<Trade>, WorkHandler<Trade> {
 ```java
 public class RingBufferTest {  
     public static void main(String[] args) throws Exception {  
+        ExecutorService executors = Executors.newFixedThreadPool(4);
+
         //1. 创建RingBuffer
         final RingBuffer<Trade> ringBuffer = RingBuffer.createSingleProducer(
             new EventFactory<Trade>() {  // EventFactory 负责生产 Trade 数据填充RingBuffer的区块
@@ -234,23 +254,18 @@ public class RingBufferTest {
             1024,             // RingBuffer的大小，2的N次方，提高求模运算效率
             new YieldingWaitStrategy());// 等待策略
 
-        //2. 创建线程池
-        ExecutorService executors = Executors.newFixedThreadPool(4);
-
-        //3. 创建SequenceBarrier
+        //2. 绑定消息处理事件
+        //2.1 创建SequenceBarrier
         SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
-
-
-        //4. 消息处理，如果存在多个消费者，那就重复执行下面3行代码，把TradeHandler换成其它消费者类
-        //4.1. 创建消息处理器
+        //2.2. 创建消息处理器，如果存在多个消费者，那就重复执行下面3行代码，把TradeHandler换成其它消费者类
         BatchEventProcessor<Trade> transProcessor = new BatchEventProcessor<Trade>(  // (1)
                 ringBuffer, sequenceBarrier, new TradeHandler());
-        //4.2. 这一步的目的就是把消费者的位置信息引用注入到生产者    如果只有一个消费者的情况可以省
+        //2.3. 这一步的目的就是把消费者的位置信息引用注入到生产者    如果只有一个消费者的情况可以省
         ringBuffer.addGatingSequences(transProcessor.getSequence());
-        //4.3. 把消息处理器提交到线程池
+        //2.4. 把消息处理器提交到线程池
         executors.submit(transProcessor);
 
-        //5. 生产数据
+        //3. 生产数据
         for(int i=0;i<8;i++){
             long seq=ringBuffer.next();
             ringBuffer.get(seq).setPrice(Math.random()*9999);
@@ -323,16 +338,16 @@ public class Main {
 
         //1. 创建disruptor
         Disruptor<Trade> disruptor = new Disruptor<Trade>(
-                new EventFactory<Trade>() { // 创建工厂
-                    @Override
-                    public Trade newInstance() {
-                        return new Trade();
-                    }
-                },
-                1024 * 1024,         // RingBuffer大小，必须是2的N次方
-                Executors.defaultThreadFactory(), // 创建ThreadFactory
-                ProducerType.SINGLE,
-                new BusySpinWaitStrategy()
+            new EventFactory<Trade>() { // 创建工厂
+                @Override
+                public Trade newInstance() {
+                    return new Trade();
+                }
+            },
+            1024 * 1024,         // RingBuffer大小，必须是2的N次方
+            Executors.defaultThreadFactory(), // 创建ThreadFactory
+            ProducerType.SINGLE,
+            new BusySpinWaitStrategy()
         );
 
         //2. 绑定事件消费
