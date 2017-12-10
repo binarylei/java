@@ -223,44 +223,44 @@ public class TradeHandler implements EventHandler<Trade>, WorkHandler<Trade> {
 ```java
 public class RingBufferTest {  
 	public static void main(String[] args) throws Exception {  
-        //1. 创建RingBuffer
-        final RingBuffer<Trade> ringBuffer = RingBuffer.createSingleProducer(
-                new EventFactory<Trade>() {  // EventFactory 负责生产 Trade 数据填充RingBuffer的区块
-                    @Override
-                    public Trade newInstance() {
-                        return new Trade();
-                    }
-                },
-                1024,             // RingBuffer的大小，2的N次方，提高求模运算效率
-                new YieldingWaitStrategy());// 等待策略
-        
-        //2. 创建线程池
-        ExecutorService executors = Executors.newFixedThreadPool(4);
-        
-        //3. 创建SequenceBarrier
-        SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
+		//1. 创建RingBuffer
+		final RingBuffer<Trade> ringBuffer = RingBuffer.createSingleProducer(
+		        new EventFactory<Trade>() {  // EventFactory 负责生产 Trade 数据填充RingBuffer的区块
+		            @Override
+		            public Trade newInstance() {
+		                return new Trade();
+		            }
+		        },
+		        1024,             // RingBuffer的大小，2的N次方，提高求模运算效率
+		        new YieldingWaitStrategy());// 等待策略
+
+		//2. 创建线程池
+		ExecutorService executors = Executors.newFixedThreadPool(4);
+
+		//3. 创建SequenceBarrier
+		SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
 
 
-        //4. 消息处理，如果存在多个消费者，那就重复执行下面3行代码，把TradeHandler换成其它消费者类
-        //4.1. 创建消息处理器
-        BatchEventProcessor<Trade> transProcessor = new BatchEventProcessor<Trade>(  // (1)
-                ringBuffer, sequenceBarrier, new TradeHandler());
-        //4.2. 这一步的目的就是把消费者的位置信息引用注入到生产者    如果只有一个消费者的情况可以省
-        ringBuffer.addGatingSequences(transProcessor.getSequence());
-        //4.3. 把消息处理器提交到线程池
-        executors.submit(transProcessor);
+		//4. 消息处理，如果存在多个消费者，那就重复执行下面3行代码，把TradeHandler换成其它消费者类
+		//4.1. 创建消息处理器
+		BatchEventProcessor<Trade> transProcessor = new BatchEventProcessor<Trade>(  // (1)
+		        ringBuffer, sequenceBarrier, new TradeHandler());
+		//4.2. 这一步的目的就是把消费者的位置信息引用注入到生产者    如果只有一个消费者的情况可以省
+		ringBuffer.addGatingSequences(transProcessor.getSequence());
+		//4.3. 把消息处理器提交到线程池
+		executors.submit(transProcessor);
 
-        //5. 生产数据
-        for(int i=0;i<8;i++){
-            long seq=ringBuffer.next();
-            ringBuffer.get(seq).setPrice(Math.random()*9999);
-            ringBuffer.publish(seq);
-        }
+		//5. 生产数据
+		for(int i=0;i<8;i++){
+		    long seq=ringBuffer.next();
+		    ringBuffer.get(seq).setPrice(Math.random()*9999);
+		    ringBuffer.publish(seq);
+		}
 
-        Thread.sleep(1000);//等上1秒，等消费都处理完成
-        transProcessor.halt();//通知事件(或者说消息)处理器 可以结束了（并不是马上结束!!!）  
-        executors.shutdown();//终止线程  
-    }  
+		Thread.sleep(1000);//等上1秒，等消费都处理完成
+		transProcessor.halt();//通知事件(或者说消息)处理器 可以结束了（并不是马上结束!!!）  
+		executors.shutdown();//终止线程  
+	}  
 }  
 ```
 
