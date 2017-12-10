@@ -123,9 +123,9 @@ public class LongEventMain {
 	public static void main(String[] args) throws Exception {
 		//1. 创建disruptor
 		Disruptor<LongEvent> disruptor = new Disruptor<LongEvent>(
-	        new LongEventFactory(),     // 创建工厂
-	        1024 * 1024,   // RingBuffer大小，必须是2的N次方
-	        Executors.defaultThreadFactory() // 创建ThreadFactory
+			new LongEventFactory(),     // 创建工厂
+			1024 * 1024,   // RingBuffer大小，必须是2的N次方
+			Executors.defaultThreadFactory() // 创建ThreadFactory
 		);
 
 		//2. 连接消费事件方法
@@ -188,7 +188,7 @@ public class LongEventMain {
 public class Trade {
 	private String id;//ID
 	private double price;//金额
-	
+
 	public String getId() {
 		return id;
 	}
@@ -361,34 +361,34 @@ public class Main {
 
 ```java
 public class TradePublisher implements Runnable {  
-    Disruptor<Trade> disruptor;
-    private CountDownLatch latch;
-    private static int LOOP=10;//模拟百万次交易的发生
+	Disruptor<Trade> disruptor;
+	private CountDownLatch latch;
+	private static int LOOP=10;//模拟百万次交易的发生
+
+	public TradePublisher(CountDownLatch latch, Disruptor<Trade> disruptor) {  
+	    this.disruptor=disruptor;
+	    this.latch=latch;
+	}
+	@Override
+	public void run() {
+		TradeEventTranslator tradeTransloator = new TradeEventTranslator();
+	    for(int i=0;i<LOOP;i++){
+	        disruptor.publishEvent(tradeTransloator);
+	    }
+	    latch.countDown();
+	}
+}
   
-    public TradePublisher(CountDownLatch latch, Disruptor<Trade> disruptor) {  
-        this.disruptor=disruptor;
-        this.latch=latch;
-    }
-    @Override  
-    public void run() {  
-    	TradeEventTranslator tradeTransloator = new TradeEventTranslator();  
-        for(int i=0;i<LOOP;i++){  
-            disruptor.publishEvent(tradeTransloator);  
-        }  
-        latch.countDown();  
-    }  
-}  
-  
-class TradeEventTranslator implements EventTranslator<Trade>{  
-	private Random random=new Random();  
-    
-	@Override  
-    public void translateTo(Trade event, long sequence) {  
-        this.generateTrade(event);  
-    }  
-	private Trade generateTrade(Trade trade){  
-        trade.setPrice(random.nextDouble()*9999);  
-        return trade;  
-    }  
-}  
+class TradeEventTranslator implements EventTranslator<Trade>{
+	private Random random=new Random();
+
+	@Override
+	public void translateTo(Trade event, long sequence) {
+    	this.generateTrade(event);
+	}
+	private Trade generateTrade(Trade trade){
+	    trade.setPrice(random.nextDouble()*9999);
+	    return trade;
+	}
+}
 ```
