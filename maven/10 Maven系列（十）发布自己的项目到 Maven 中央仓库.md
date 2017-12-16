@@ -2,25 +2,39 @@
 
 可能很多人都在用maven仓库，但是如果要问怎么发布项目到中央仓库，估计很多人都不知道了，下面本篇文章带大家往中央仓库发布一个自己的maven项目。
 
+## 相关网站：
+
+OSS 注册地址：https://issues.sonatype.org/secure/Signup!default.jspa
+
+OSS nexus地址：https://oss.sonatype.org
+
+中央仓库搜索网站：http://search.maven.org/
+
+issues.sonatype.org 是一个JIRA站点，OSS用来管理流程。
+
+oss.sonatype.org 为nexus站点，构件发布是在这个oss系统上。在这里可以查询到全世界已发布的构件。
+
+这两个网址的用户名和密码相同。
+
+## 大体流程
+
 往maven中央仓库发布组件的过程是与Sonatype工作人员交互的过程，这个过程是在Sonatype的JIRA平台上完成的，过程如下：
 
-1. 在Sonatype的JIRA注册
+1. 在sonatype提出issuse申请
 
-2. 提交一个issue（提出一个发布申请），告诉工作人员我要创建一个构件。
+2. 使用 GPG 生成密钥对
 
-3. 等待工作人员审批，会给你发邮件，在这个issue下给你comment说明通过或者哪里有问题。
+3. 修改Maven配置文件
 
-4. 上传构件
+4. 发布到 OSS nexus仓库中
 
-5. 发布构建，并在哪个issue下告诉工作人员我发布了
+5. 通知 Sonatype 构件已成功发布
 
-6. 等待审核，如果通过会告诉你需要release一下并在issue上告诉工作人员我release了
+6. 后续更新
 
-7. 发布成功
+## 1. 在sonatype提出issuse申请
 
-8. 后续更新
-
-## 1. 注册帐户
+### 1.1 注册一个 Sonatype 用户
 
 注册地址：https://issues.sonatype.org/secure/Signup!default.jspa
 
@@ -32,7 +46,7 @@ Sonatype OSS 地址：https://oss.sonatype.org
 
 这里的用户名和密码就是上面在JIRA中注册的，在这里可以查询到全世界已发布的构件，当然我们发布构件的操作也在这里进行。
 
-## 2. 创建一个 Issue
+### 1.2 创建一个发布项目的 Issue
 
 地址是 https://issues.sonatype.org/secure/CreateIssue.jspa?issuetype=21&pid=10134
 
@@ -40,7 +54,7 @@ Sonatype OSS 地址：https://oss.sonatype.org
 
 这里需要特别说明的是Group Id，如果你是托管在Github或者Git@OSC 可以使用com.github.binarylei或者net.oschina.XXX，，剩下的可以依照实际情况填写，例如托管的地址等等（托管地址等信息会在用去去maven仓库搜索的时候显示，用来帮助用户找到你的项目地址寻求帮助）。另外此处填写的group id必须和你要发布的组件的pom中的group id一样，必须一样！！！
 
-## 3. 等待Issue审批
+### 1.3 等待Issue审批
 
 这个审核还是很及时的，我的几分钟后就收到审核结果。如果不通过审核人员会告诉你不通过的原因，例如当你用的是自己的域名时（不是github）审核人员会询问你域名是否是你的，回复一下就行。审核通过后会收到邮件通知，同时在Issue下面会看到 Sonatype 工作人员的回复，一般是添加一个comment，内容大致如下：
 
@@ -56,7 +70,7 @@ com.github.binarylei has been prepared, now user(s) binarylei can:
 这个是工作人员告诉我已经通过了，可以去下面那个地址发布（前两个地址），发布后去下面后两个地址搜索。
 
 
-## 4. 使用 GPG 生成密钥对
+## 2. 使用 GPG 生成密钥对
 
 Windows 系统，可以下载 Gpg4win 软件来生成密钥对。下载地址：https://www.gpg4win.org/download.html
 
@@ -118,9 +132,9 @@ Linux 系统，直接从源中安装gpg软件包就行。[更多GnuPG使用详�
     gpg: Total number processed: 1
     gpg:              unchanged: 1
 
-## 5. 修改Maven配置文件
+## 3. 修改Maven配置文件
 
-### setting.xml
+### 3.1 setting.xml
 
 找到maven的全局配置文件settings.xml，在里面找到 节点，这个节点默认是注释掉的，增加如下配置：
 
@@ -136,7 +150,7 @@ Linux 系统，直接从源中安装gpg软件包就行。[更多GnuPG使用详�
 
 这里的id是要在pom.xml里面使用的，用户名和密码就是在Sonatype上面注册的用户名和密码。
 
-### pom.xml
+### 3.2 pom.xml
 
 ```xml
 <project>
@@ -233,7 +247,9 @@ pom.xml中必须包括：name、description、url、licenses、developers、scm 
 
 如果是多模块项目的话，只需要在父pom.xml中声明这些，子pom.xml中只需要修改相应的一些信息，如name标签。
 
-## 6. 上传构件到 OSS 中
+## 4. 发布到 OSS nexus仓库中
+
+### 4.1 上传到 OSS
 
     mvn clean deploy -P release
 
@@ -243,7 +259,7 @@ pom.xml中必须包括：name、description、url、licenses、developers、scm 
 
 注意：此时上传的构件并未正式发布到中央仓库中，只是部署到 OSS 中了，下面才是真正的发布。
 
-## 7. 在 OSS 中发布构件
+### 4.2 在 OSS 中发布构件
 
 使用 Sonatype 账号登录 https://oss.sonatype.org/#stagingRepositories，可在 Staging Repositories 中查看刚才已上传的构件。
 一般发布的构件不多，可以直接拉到底就能看到自己的构件，也可进行模糊查询定位到自己的构件（见后边附图）。
@@ -254,17 +270,21 @@ pom.xml中必须包括：name、description、url、licenses、developers、scm 
 
 ![Release构件](http://img.blog.csdn.net/20170109182034435?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2hlbGxkb24=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## 8. 通知 Sonatype 构件已成功发布
+## 5. 通知 Sonatype 构件已成功发布
+
+### 5.1 在之前的在Issue下面回复
+
+在Issue下面回复一条“构件已成功发布”的评论，这是为了通知 Sonatype 的工作人员为需要发布的构件做审批，发布后会关闭该Issue。
 
 这个前面的Sonatype工作人员其实在审核你的Issue时，在comment中已经提示你了，
 
 在Issue下面回复一条“构件已成功发布”的评论，这是为了通知 Sonatype 的工作人员为需要发布的构件做审批，发布后会关闭该Issue。
 
-## 9. 等待构件审批通过
+### 5.2 等待构件审批通过
 
 这个，又只能等待了，当然他们晚上上班，还是第二天看。当审批通过后，将会收到邮件通知。
 
-## 10. 从中央仓库中搜索构件
+### 5.3 从中央仓库中搜索构件
 
 这时，就可以在maven的中央仓库中搜索到自己发布的构件了，以后可以直接在pom.xml中使用了！
 
@@ -272,13 +292,17 @@ pom.xml中必须包括：name、description、url、licenses、developers、scm 
 
 第一次成功发布之后，以后就不用这么麻烦了，可以直接使用Group Id发布任何的构件，当然前提是Group Id没有变。
 
-## 11. 以后的发布流程：
+### 6. 以后的发布流程
 
 a）构件完成后直接使用maven在命令行上传构建；
 
 b）在https://oss.sonatype.org/ close并release构件；
 
 c)等待同步好（大约2小时多）之后，就可以使用了
+
+参考：
+
+1. [Java开源项目发布到maven中央仓库](http://blog.csdn.net/shelldon/article/details/54291474)
 
 
 
