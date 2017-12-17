@@ -304,6 +304,8 @@ c)等待同步好（大约2小时多）之后，就可以使用了
 
 1. [Java开源项目发布到maven中央仓库](http://blog.csdn.net/shelldon/article/details/54291474)
 
+2. [向maven中央仓库提交jar](https://www.cnblogs.com/gaoxing/p/4359795.html)
+
 
 
 
