@@ -1,4 +1,4 @@
-package com.gupao.binarylei.jvm;
+package com.gupao.binarylei.jvm.gupao;
 
 public class Main {
 

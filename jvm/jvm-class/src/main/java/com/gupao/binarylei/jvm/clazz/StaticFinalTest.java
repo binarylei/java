@@ -20,6 +20,7 @@ public class StaticFinalTest {
 
     public static void main(String[] args) {
         System.out.println(StaticFinal.static_final_string);
+        System.out.println(StaticFinal.static_no_final_String);
     }
 }
 
@@ -29,7 +30,7 @@ class StaticFinal {
     public static final String static_final_string = "static_final_string";
 
     // 2. 非常量，会触发初始化
-    public static String no_final_String = "no_final_string";
+    public static String static_no_final_String = "static_no_final_string";
 
     static {
         System.out.println("init");
