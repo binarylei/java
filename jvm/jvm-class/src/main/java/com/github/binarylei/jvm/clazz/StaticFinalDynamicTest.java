@@ -1,4 +1,4 @@
-package com.gupao.binarylei.jvm.clazz;
+package com.github.binarylei.jvm.clazz;
 
 import java.util.UUID;
 

@@ -1,6 +1,4 @@
-package com.gupao.binarylei.jvm.clazz;
-
-import java.util.UUID;
+package com.github.binarylei.jvm.clazz;
 
 /**
  * 当一个接口在初始化时，并不要求其父接口完成初始化

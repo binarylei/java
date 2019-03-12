@@ -1,4 +1,4 @@
-package com.gupao.binarylei.jvm.clazz;
+package com.github.binarylei.jvm.clazz;
 
 /**
  * 常量在编译阶段会存入到调用这个常量的方法所在类的常量池中
