@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		   xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 https://osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+	<bean id="type1" class="com.edu.osgi.blueprint.Type">
+		<argument value="数码产品"></argument>
+	</bean>
+
+	<bean id="type2" class="com.edu.osgi.blueprint.Type">
+		<argument value="数码产品"></argument>
+		<argument value="..."/>
+	</bean>
+
+	<bean id="mp4" class="com.edu.osgi.blueprint.Product" init-method="init" destroy-method="destroy">
+		<property name="name" value="MP4" />
+		<property name="type" ref="type1" />
+	</bean>
+	
+	<bean id="typeFactory" class="com.edu.osgi.blueprint.TypeFactory" />
+	
+	<bean id="dianqiType" factory-ref="typeFactory" factory-method="createType" />
+	
+	<bean id="dianshi" class="com.edu.osgi.blueprint.Product" init-method="init" destroy-method="destroy">
+		<property name="name" value="电视" />
+		<property name="type" ref="dianqiType" />
+	</bean>
+	
+	<bean class="com.edu.osgi.blueprint.ProductFactory" init-method="init">
+		<property name="bundle" ref="blueprintBundle" />
+		<property name="bundleContext" ref="blueprintBundleContext" />
+	</bean>
+
+	<bean class="com.edu.osgi.blueprint.Order" init-method="init">
+		<property name="id" value="20160320" />
+		<property name="products">
+			<list>
+				<ref component-id="mp4"/>
+				<ref component-id="dianshi"/>
+			</list>
+		</property>
+		<property name="map">
+			<map>
+				<entry key="createDate" value="20160320" />
+				<entry key="userId" value="101" />
+			</map>
+		</property>
+	</bean>
+
+</blueprint>
