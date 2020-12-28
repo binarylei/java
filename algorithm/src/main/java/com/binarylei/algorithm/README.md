@@ -1,3 +1,5 @@
+
+
 # 数据结构与算法练习
 
 ## Array 实战题目
@@ -38,40 +40,33 @@
 - [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
 - [226. 翻转二叉树](https://leetcode-cn.com/problems/invert-binary-tree/)
 - [98. 验证二叉搜索树](https://leetcode-cn.com/problems/validate-binary-search-tree/)
-- https://leetcode-cn.com/problems/maximum-depth-of-binary-tree
-- https://leetcode-cn.com/problems/minimum-depth-of-binary-tree
-- https://leetcode-cn.com/problems/serialize-and-deserialize-binary-tree/
-- https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/
-- https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal
-- https://leetcode-cn.com/problems/combinations/
-- https://leetcode-cn.com/problems/permutations/
-- https://leetcode-cn.com/problems/permutations-ii/
+- [104. 二叉树的最大深度](https://leetcode-cn.com/problems/maximum-depth-of-binary-tree/)
+- [111. 二叉树的最小深度](https://leetcode-cn.com/problems/minimum-depth-of-binary-tree/)
+- [297. 二叉树的序列化与反序列化](https://leetcode-cn.com/problems/serialize-and-deserialize-binary-tree/)
+- [236. 二叉树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/)
+- [105. 从前序与中序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
+- [77. 组合](https://leetcode-cn.com/problems/combinations/)
+- [46. 全排列](https://leetcode-cn.com/problems/permutations/)
+- [47. 全排列 II](https://leetcode-cn.com/problems/permutations-ii/)
 
 ## 分治、回溯实战题目
 
-- https://leetcode-cn.com/problems/powx-n/
-- https://leetcode-cn.com/problems/subsets/
-- [https://leetcode-cn.com/problems/majority-element/description/](https://leetcode-cn.com/problems/majority-element/description/)
-- https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/
-- https://leetcode-cn.com/problems/n-queens/
+- [50. Pow(x, n)](https://leetcode-cn.com/problems/powx-n/)
+- [78. 子集](https://leetcode-cn.com/problems/subsets/)
+- [169. 多数元素](https://leetcode-cn.com/problems/majority-element/)
+- [17. 电话号码的字母组合](https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/)
+- [51. N 皇后](https://leetcode-cn.com/problems/n-queens/)
 
 ## 深度优先搜索和广度优先搜索实战题目
 
-- https://leetcode-cn.com/problems/binary-tree-level-order-traversal/#/description
-- https://leetcode-cn.com/problems/minimum-genetic-mutation/#/description
-- https://leetcode-cn.com/problems/generate-parentheses/#/description
-- https://leetcode-cn.com/problems/find-largest-value-in-each-tree-row/#/description
-
-## 课后作业
-
-- https://leetcode-cn.com/problems/binary-tree-level-order-traversal/#/description
-- https://leetcode-cn.com/problems/minimum-genetic-mutation/#/description
-- https://leetcode-cn.com/problems/generate-parentheses/#/description
-- https://leetcode-cn.com/problems/find-largest-value-in-each-tree-row/#/description
-- https://leetcode-cn.com/problems/word-ladder/description/
-- https://leetcode-cn.com/problems/word-ladder-ii/description/
-- https://leetcode-cn.com/problems/number-of-islands/
-- https://leetcode-cn.com/problems/minesweeper/description/
+- [102. 二叉树的层序遍历](https://leetcode-cn.com/problems/binary-tree-level-order-traversal/)
+- [433. 最小基因变化](https://leetcode-cn.com/problems/minimum-genetic-mutation/)
+- [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
+- [515. 在每个树行中找最大值](https://leetcode-cn.com/problems/find-largest-value-in-each-tree-row/)
+- [127. 单词接龙](https://leetcode-cn.com/problems/word-ladder/)
+- [126. 单词接龙 II](https://leetcode-cn.com/problems/word-ladder-ii/)
+- [200. 岛屿数量](https://leetcode-cn.com/problems/number-of-islands/)
+- [529. 扫雷游戏](https://leetcode-cn.com/problems/minesweeper/)
 
 ## 参考链接
 
