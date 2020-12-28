@@ -1,4 +1,4 @@
-package com.binarylei.algorithm;
+package com.binarylei.algorithm.support;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

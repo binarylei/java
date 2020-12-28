@@ -1,8 +1,6 @@
 package com.binarylei.algorithm.algo.skill.greedy;
 
-import com.binarylei.algorithm.Node;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.binarylei.algorithm.support.Node;
 import org.junit.Test;
 
 import java.util.Arrays;
