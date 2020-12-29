@@ -38,6 +38,7 @@
 
 - [70. 爬楼梯](https://leetcode-cn.com/problems/climbing-stairs/)
 - [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
+
 - [226. 翻转二叉树](https://leetcode-cn.com/problems/invert-binary-tree/)
 - [98. 验证二叉搜索树](https://leetcode-cn.com/problems/validate-binary-search-tree/)
 - [104. 二叉树的最大深度](https://leetcode-cn.com/problems/maximum-depth-of-binary-tree/)
@@ -45,9 +46,17 @@
 - [297. 二叉树的序列化与反序列化](https://leetcode-cn.com/problems/serialize-and-deserialize-binary-tree/)
 - [236. 二叉树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/)
 - [105. 从前序与中序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
-- [77. 组合](https://leetcode-cn.com/problems/combinations/)
-- [46. 全排列](https://leetcode-cn.com/problems/permutations/)
-- [47. 全排列 II](https://leetcode-cn.com/problems/permutations-ii/)
+
+- [46. 全排列（中等）](https://leetcode-cn.com/problems/permutations/)
+- [47. 全排列 II（中等）](https://leetcode-cn.com/problems/permutations-ii/)：思考为什么造成了重复，如何在搜索之前就判断这一支会产生重复；
+- [39. 组合总和（中等）](https://leetcode-cn.com/problems/combination-sum/)
+- [40. 组合总和 II（中等）](https://leetcode-cn.com/problems/combination-sum-ii/)
+- [40. 组合总和 II（中等）](https://leetcode-cn.com/problems/combination-sum-ii/)
+- [77. 组合（中等）](https://leetcode-cn.com/problems/combinations/)
+- [78. 子集（中等）](https://leetcode-cn.com/problems/subsets/)
+- [90. 子集 II（中等）](https://leetcode-cn.com/problems/subsets-ii/)：剪枝技巧同 47 题、39 题、40 题；
+- [60. 第 k 个排列（中等）](https://leetcode-cn.com/problems/permutation-sequence/)：利用了剪枝的思想，减去了大量枝叶，直接来到需要的叶子结点；
+- [93. 复原 IP 地址（中等）](https://leetcode-cn.com/problems/restore-ip-addresses/)
 
 ## 分治、回溯实战题目
 
