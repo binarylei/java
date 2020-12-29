@@ -38,6 +38,8 @@
 
 - [70. 爬楼梯](https://leetcode-cn.com/problems/climbing-stairs/)
 - [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
+
+### 二叉树
 - [226. 翻转二叉树](https://leetcode-cn.com/problems/invert-binary-tree/)
 - [98. 验证二叉搜索树](https://leetcode-cn.com/problems/validate-binary-search-tree/)
 - [104. 二叉树的最大深度](https://leetcode-cn.com/problems/maximum-depth-of-binary-tree/)
@@ -45,6 +47,8 @@
 - [297. 二叉树的序列化与反序列化](https://leetcode-cn.com/problems/serialize-and-deserialize-binary-tree/)
 - [236. 二叉树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/)
 - [105. 从前序与中序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
+
+### 排序组合
 - [46. 全排列（中等）](https://leetcode-cn.com/problems/permutations/)
 - [47. 全排列 II（中等）](https://leetcode-cn.com/problems/permutations-ii/)：思考为什么造成了重复，如何在搜索之前就判断这一支会产生重复；
 - [39. 组合总和（中等）](https://leetcode-cn.com/problems/combination-sum/)
