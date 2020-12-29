@@ -68,6 +68,16 @@
 - [200. 岛屿数量](https://leetcode-cn.com/problems/number-of-islands/)
 - [529. 扫雷游戏](https://leetcode-cn.com/problems/minesweeper/)
 
+## 贪心算法实战题目
+
+- [322. 零钱兑换](https://leetcode-cn.com/problems/coin-change/)
+- [860. 柠檬水找零](https://leetcode-cn.com/problems/lemonade-change/)
+- [122. 买卖股票的最佳时机 II](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/)
+- [455. 分发饼干](https://leetcode-cn.com/problems/assign-cookies/)
+- [874. 模拟行走机器人](https://leetcode-cn.com/problems/walking-robot-simulation/)
+- [55. 跳跃游戏](https://leetcode-cn.com/problems/jump-game/) ](https://leetcode-cn.com/problems/jump-game/)
+- [45. 跳跃游戏 II](https://leetcode-cn.com/problems/jump-game-ii/)
+
 ## 参考链接
 
 - [养成收藏精选代码的习惯（示例）](http://shimo.im/docs/R6g9WJV89QkHrDhr)
