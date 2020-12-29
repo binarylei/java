@@ -46,6 +46,7 @@ class Solution_2 {
     }
 
     public static void main(String[] args) {
+        // [[3, 4], [2, 4], [2, 3], [1, 4], [1, 3], [1, 2]]
         System.out.println(new Solution_2().combine(4, 2));
     }
 }
