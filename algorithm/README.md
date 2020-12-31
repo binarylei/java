@@ -40,6 +40,7 @@
 - [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
 
 ### 二叉树
+
 - [226. 翻转二叉树](https://leetcode-cn.com/problems/invert-binary-tree/)
 - [98. 验证二叉搜索树](https://leetcode-cn.com/problems/validate-binary-search-tree/)
 - [104. 二叉树的最大深度](https://leetcode-cn.com/problems/maximum-depth-of-binary-tree/)
@@ -49,6 +50,7 @@
 - [105. 从前序与中序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
 
 ### 排序组合
+
 - [46. 全排列（中等）](https://leetcode-cn.com/problems/permutations/)
 - [47. 全排列 II（中等）](https://leetcode-cn.com/problems/permutations-ii/)：思考为什么造成了重复，如何在搜索之前就判断这一支会产生重复；
 - [39. 组合总和（中等）](https://leetcode-cn.com/problems/combination-sum/)
@@ -86,8 +88,16 @@
 - [122. 买卖股票的最佳时机 II](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/)
 - [455. 分发饼干](https://leetcode-cn.com/problems/assign-cookies/)
 - [874. 模拟行走机器人](https://leetcode-cn.com/problems/walking-robot-simulation/)
-- [55. 跳跃游戏](https://leetcode-cn.com/problems/jump-game/) ](https://leetcode-cn.com/problems/jump-game/)
+- [55. 跳跃游戏](https://leetcode-cn.com/problems/jump-game/)
 - [45. 跳跃游戏 II](https://leetcode-cn.com/problems/jump-game-ii/)
+
+## 二分查找实战题目
+
+- [69. x 的平方根](https://leetcode-cn.com/problems/sqrtx/)
+- [367. 有效的完全平方数](https://leetcode-cn.com/problems/valid-perfect-square/)
+- [33. 搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/)
+- [74. 搜索二维矩阵](https://leetcode-cn.com/problems/search-a-2d-matrix/)
+- [153. 寻找旋转排序数组中的最小值](https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array/)
 
 ## 参考链接
 
