@@ -71,7 +71,7 @@
 ## 深度优先搜索和广度优先搜索
 
 - [102. 二叉树的层序遍历](https://leetcode-cn.com/problems/binary-tree-level-order-traversal/)
-- [433. 最小基因变化](https://leetcode-cn.com/problems/minimum-genetic-mutation/)
+- [433. 最小基因变化](https://leetcode-cn.com/problems/minimum-genetic-mutation/)：n格子问题
 - [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
 - [515. 在每个树行中找最大值](https://leetcode-cn.com/problems/find-largest-value-in-each-tree-row/)
 - [127. 单词接龙](https://leetcode-cn.com/problems/word-ladder/)
