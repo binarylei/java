@@ -1,4 +1,4 @@
-package com.github.binarylei.jvm.clazz;
+package com.binarylei.jvm.clazz;
 
 /**
  * 1. 调用 static 修辞的变量(注意没有 final 修辞)会执行初始化过程，注意只会初始化 static 所在的类

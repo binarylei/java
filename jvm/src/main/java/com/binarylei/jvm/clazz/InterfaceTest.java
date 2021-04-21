@@ -1,4 +1,4 @@
-package com.github.binarylei.jvm.clazz;
+package com.binarylei.jvm.clazz;
 
 /**
  * 当一个接口在初始化时，并不要求其父接口完成初始化

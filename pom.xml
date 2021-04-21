@@ -10,6 +10,7 @@
 
     <modules>
         <module>jdk8</module>
+        <module>jvm</module>
     </modules>
 
     <properties>

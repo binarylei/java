@@ -1,4 +1,4 @@
-package com.github.binarylei.jvm.clazz;
+package com.binarylei.jvm.clazz;
 
 /**
  * 对于数组实例来说，其类开是由 JVM 在运行期动态生成的，表示为 [Lxx.xx

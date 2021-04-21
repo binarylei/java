@@ -1,4 +1,4 @@
-package com.github.binarylei.jvm;
+package com.binarylei.jvm;
 
 import java.io.File;
 import java.io.IOException;

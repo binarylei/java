@@ -1,4 +1,4 @@
-package com.github.binarylei.jvm.bytecode;
+package com.binarylei.jvm.bytecode;
 
 /**
  * @author: leigang

@@ -6,11 +6,6 @@
     <groupId>com.github.binarylei</groupId>
     <artifactId>jvm</artifactId>
     <version>1.0.0</version>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>jvm-class</module>
-    </modules>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>

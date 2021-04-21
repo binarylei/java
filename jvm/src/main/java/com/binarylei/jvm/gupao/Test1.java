@@ -1,4 +1,4 @@
-package com.github.binarylei.jvm.gupao;
+package com.binarylei.jvm.gupao;
 
 import java.io.IOException;
 
