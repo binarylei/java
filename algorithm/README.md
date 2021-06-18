@@ -35,7 +35,7 @@
 ## 递归
 
 - [70. 爬楼梯](https://leetcode-cn.com/problems/climbing-stairs/)
-- [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
+- [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/)：N格子问题
 
 ### 二叉树
 
